@@ -1,0 +1,4 @@
+INPUT file.c helper.c last.c
+OUTPUT program
+CC gcc
+CMD .CC .INPUT -o .OUTPUT
