@@ -1,6 +1,7 @@
 # MAD - Make ADvanced (not really yet)
 MAD is a build system that repeats Make but tries to be more obvious in syntax 
-and a bit extended.
+and a bit extended.   
+Was started as Perl probe project.   
 ## Example 
 Example for C.    
 `MADFile`:

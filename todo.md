@@ -1,3 +1,3 @@
-- targets
+- comments
 - wildcards
-- ifs
+- ifs and other logic

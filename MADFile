@@ -1,4 +1,10 @@
-INPUT file.c helper.c last.c
-OUTPUT program
-CC gcc
-CMD .CC .INPUT -o .OUTPUT
+recipe debug { # debug build
+    CC = gcc 
+
+    INPUT = file.c helper.c last.c
+    OUTPUT = program
+    D ?= echo hi
+
+    CMD echo .D 
+    CMD .CC .INPUT -o .OUTPUT
+} end;
