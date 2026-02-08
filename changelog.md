@@ -1,5 +1,7 @@
-v0.2:
-- added recipes
-- added `?=` operator to store cmd execution output in variable
-- added `list` option
-- `recipe help` subcommand
+v0.3:
+- now recipe help is on prev line
+- added backslash (line break) support
+- new: `mad.pl list help`
+- standard variable: `MAD_VERSION`
+- standard variable: `MAD_TIMESTAMP`
+- wildcards in variables: `dir/*.extension`
