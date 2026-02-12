@@ -8,14 +8,17 @@ recipe debug {
     OUTPUT = program
     # D ?= echo hi # assign command output to D 
 
-    # CMD echo .D
-    # CMD echo .MAD_VERSION # print MAD version
+    CMD echo .ARG0
+
     CMD .CC .INPUT -o .OUTPUT # run command
 } end;
 
 # prints all markdown files
+# testing multiline
 recipe echofiles {
     FILES = *.md 
 
     CMD echo .FILES
 } end;
+
+

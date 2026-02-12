@@ -29,7 +29,9 @@ Or, using shebang:
 You may also:
 ```bash 
 # Check recipes list 
-mad.pl list 
+mad.pl list
+# Check recipes list with their helps
+mad.pl list help
 # Check help (comment) about the recipe 
-mad.pl recipe help 
+mad.pl recipe help
 ```

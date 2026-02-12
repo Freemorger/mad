@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use v5.35;
 
-my $MAD_VERSION = "v0.3"; 
+my $MAD_VERSION = "v0.4"; 
 my $MAD_TIMESTAMP = localtime() . "";
 
 sub parse_com {
@@ -45,16 +45,19 @@ sub parse_wildcards {
 }
 
 sub main {
-    open(my $contents, "<", "MADFile") or die "Can't open MADFile!";
+    open(my $contents, "<", "MADFile") or 
+        die "MADFile wasn't found in current directory!";
     my @lines = <$contents>;
 
     if ($#ARGV + 1 < 1) {
-        die "Usage: mad.pl recipe";
+        die "Usage: mad.pl recipe; see `mad.pl list` or `mad.pl list help`";
     }
     my $recipe = $ARGV[0];
 
     my $need_list = 0;
     my $need_help = 0;
+    my $recipe_args_ct = @ARGV - 1;
+
     if ($recipe =~ /list/) {
         $need_list = 1;
         if (defined($ARGV[1]) && $ARGV[1] eq "help") {
@@ -79,6 +82,7 @@ sub main {
     my $idx = 0;
     my $comment = "";
     my $last_comment = "";
+    my $was_com = 0; # whether last line had comment 
 
     foreach my $line (@lines) {
         if ($skip_ctr > 0) {
@@ -88,9 +92,22 @@ sub main {
         }
 
         chomp $line;
+        
         $line =~ s{(#.*)}{}g;
-        $last_comment = $comment;
+        
         $comment = $1;
+        if ($was_com && defined($comment)) {
+            $last_comment .= " $comment";
+            $last_comment =~ tr/#//d;
+        } elsif (defined($comment)) {
+            $last_comment = $comment;
+        }
+        if (defined $comment) {
+            $was_com = 1;
+        } else {
+            $was_com = 0;
+        }
+
         my @seped = split(" ", $line);
 
         $_ = $line;
@@ -104,10 +121,19 @@ sub main {
                 $need_help ? say "$name: $last_comment" : say "$name";
             } elsif ($name eq $recipe) {
                 $tgt = 1;
+                
+                my $arg_idx = 0;
+                foreach my $cli_arg (@ARGV[1..(1+$recipe_args_ct)]) {
+                    if (defined $cli_arg) {
+                        $vars{"ARG$arg_idx"} = ("$cli_arg");
+                    }
+                    $arg_idx++;
+                }
             }
         }
         if (/[}]\send[;]/) {
             $tgt = 0;
+            %vars = ();
         }
         if (!$tgt) {
             $idx++;
@@ -149,7 +175,9 @@ sub main {
             my @cmd_args = @seped[1..$#seped];
             my $exp = parse_com(\@cmd_args, \%vars);
             say "CMD ", $exp;
-            system $exp;
+            if (system $exp) {
+                die "CMD Fail";
+            }
         }
 
         $idx++;
