@@ -44,33 +44,20 @@ sub parse_wildcards {
     return @parsed;
 }
 
-sub main {
-    open(my $contents, "<", "MADFile") or 
-        die "MADFile wasn't found in current directory!";
-    my @lines = <$contents>;
+# runrecipe(recipe, lines, needhelp, needlist, rargs_len)
+sub runrecipe {
+    my ($args_ref)     = @_;
+    my @args           = @$args_ref;
 
-    if ($#ARGV + 1 < 1) {
-        die "Usage: mad.pl recipe; see `mad.pl list` or `mad.pl list help`";
-    }
-    my $recipe = $ARGV[0];
+    my $recipe         = $args[0];
+    
+    my $lines_ref      = $args[1];
+    my @lines          = @$lines_ref;
 
-    my $need_list = 0;
-    my $need_help = 0;
-    my $recipe_args_ct = @ARGV - 1;
+    my $need_help      = $args[2];
+    my $need_list      = $args[3];
+    my $recipe_args_ct = $args[4];
 
-    if ($recipe =~ /list/) {
-        $need_list = 1;
-        if (defined($ARGV[1]) && $ARGV[1] eq "help") {
-            $need_help = 1;
-        }
-    } elsif ($recipe =~ /--version/) {
-        say $MAD_VERSION;
-        return;
-    } elsif (($recipe =~ /[A-Za-z-0-9]/) && (defined($ARGV[1]))) {
-        if ($ARGV[1] eq "help") {
-            $need_help = 1;
-        }
-    }
 
     my %vars = (
         MAD_VERSION => $MAD_VERSION,
@@ -178,10 +165,47 @@ sub main {
             if (system $exp) {
                 die "CMD Fail";
             }
+        } elsif (/REQ+/) {
+            my $name = $seped[1];
+            say "RECIPE ", $name;
+            runrecipe([$name, \@lines, $need_help, $need_list, $recipe_args_ct]);
+        } elsif (/EXIT/) {
+            die "Exited at line ", idx;
         }
 
         $idx++;
     }
+}
+
+sub main {
+    open(my $contents, "<", "MADFile") or 
+        die "MADFile wasn't found in current directory!";
+    my @lines = <$contents>;
+
+    if ($#ARGV + 1 < 1) {
+        die "Usage: mad.pl recipe; see `mad.pl list` or `mad.pl list help`";
+    }
+    my $recipe = $ARGV[0];
+
+    my $need_list = 0;
+    my $need_help = 0;
+    my $recipe_args_ct = @ARGV - 1;
+
+    if ($recipe =~ /list/) {
+        $need_list = 1;
+        if (defined($ARGV[1]) && $ARGV[1] eq "help") {
+            $need_help = 1;
+        }
+    } elsif ($recipe =~ /--version/) {
+        say $MAD_VERSION;
+        return;
+    } elsif (($recipe =~ /[A-Za-z-0-9]/) && (defined($ARGV[1]))) {
+        if ($ARGV[1] eq "help") {
+            $need_help = 1;
+        }
+    }
+
+    runrecipe([$recipe, \@lines, $need_help, $need_list, $recipe_args_ct]);
 }
 
 main;

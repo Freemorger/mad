@@ -10,6 +10,10 @@ recipe debug {
 
     CMD echo .ARG0
 
+    REQ echofiles
+
+    EXIT
+
     CMD .CC .INPUT -o .OUTPUT # run command
 } end;
 
