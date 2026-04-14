@@ -1,4 +1,3 @@
-v0.5:
-- refactor
-- now supports deps (`REQ RECIPENAME` runs recipe)
-- now supports `EXIT` command
+v0.5.1:
+- fix 
+- now REQ recipe name are being sanitized

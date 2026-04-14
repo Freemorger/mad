@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use v5.35;
 
-my $MAD_VERSION = "v0.4"; 
+my $MAD_VERSION = "v0.5.1"; 
 my $MAD_TIMESTAMP = localtime() . "";
 
 sub parse_com {
@@ -15,9 +15,9 @@ sub parse_com {
     my $expanded = "";
     foreach my $tok (@args) {
         $_ = $tok;
-        if (/[.]+/) {
-            my $nodot = substr $tok, 1, length($tok);
-            $expanded .= "$vars{$nodot} ";
+        if ($tok =~ /^\.[A-Za-z_][A-Za-z0-9_]*$/) {
+            my $key = substr($tok, 1);
+            $expanded .= ($vars{$key} // "") . " ";
         } else {
             $expanded .= "$tok ";
         }
@@ -167,10 +167,12 @@ sub runrecipe {
             }
         } elsif (/REQ+/) {
             my $name = $seped[1];
+            $name =~ s/[^A-Za-z0-9_-]//g;
+
             say "RECIPE ", $name;
             runrecipe([$name, \@lines, $need_help, $need_list, $recipe_args_ct]);
         } elsif (/EXIT/) {
-            die "Exited at line ", idx;
+            die "Exited at line ", $idx;
         }
 
         $idx++;
